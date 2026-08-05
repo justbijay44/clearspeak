@@ -5,6 +5,9 @@ from pydub import AudioSegment
 import librosa
 from src.tts import generate_tts_rate, trim_silence
 
+from utils.logger import get_logger
+logger = get_logger(__name__)
+
 def process_segment(seg, idx, voice="en-US-AndrewNeural", audio_dir="data/audio"):
     text = seg["text"]
     original_dur = seg["end"] - seg["start"]
@@ -35,6 +38,10 @@ def stitch_segments(segments, original_audio_path, audio_dir="data/audio", voice
     cursor = 0.0
 
     for idx, seg in enumerate(segments):
+        if not seg["text"].strip():
+            logger.info(f"Segment {idx} has no text, skipping")
+            continue
+
         path, gap = process_segment(seg, idx, voice=voice, audio_dir=audio_dir)
         clip = AudioSegment.from_file(path)
         clip_dur = len(clip) / 1000.0
@@ -43,6 +50,7 @@ def stitch_segments(segments, original_audio_path, audio_dir="data/audio", voice
 
         placement = max(seg["start"], cursor)
         start_ms = int(placement * 1000)
+        logger.info(f"Segment {idx}: placed at {placement:.2f}s, clip_dur={clip_dur:.2f}s")
 
         seg_start_ms = int(seg["start"] * 1000)
         seg_end_ms = int(seg["end"] * 1000)
