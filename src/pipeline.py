@@ -1,5 +1,6 @@
 import os
 from src.transcribe import extract_audio, transcribe
+from src.vad import detect_speech
 from src.align import stitch_segments
 import subprocess
 
@@ -11,9 +12,10 @@ def run_pipeline(video_path, work_dir = "data", voice="en-US-AndrewNeural", mode
     os.makedirs(f"{work_dir}/video", exist_ok=True)
 
     extract_audio(video_path, audio_path)
-    segments = transcribe(audio_path, model_size=model_size)
+    blocks = detect_speech(audio_path)
+    segments = transcribe(audio_path, blocks, model_size=model_size, work_dir=work_dir)
 
-    timeline = stitch_segments(segments, segments[-1]["end"], audio_dir=f"{work_dir}/audio", voice=voice)
+    timeline = stitch_segments(segments, audio_path, audio_dir=f"{work_dir}/audio", voice=voice)
     new_audio_path = f"{work_dir}/audio/new_audio.wav"
     timeline.export(new_audio_path, format="wav")
 
@@ -31,6 +33,5 @@ def run_pipeline(video_path, work_dir = "data", voice="en-US-AndrewNeural", mode
     return output_path
 
 if __name__ == "__main__":
-
-    output = run_pipeline("data/video/input.mp4")
+    output = run_pipeline("data/video/vid2.mp4")
     print(f"done: {output}")

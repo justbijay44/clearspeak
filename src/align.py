@@ -30,8 +30,8 @@ def process_segment(seg, idx, voice="en-US-AndrewNeural", audio_dir="data/audio"
             os.remove(path)
     return final_path, gap
 
-def stitch_segments(segments, video_duration, audio_dir="data/audio", voice="en-US-AndrewNeural"):
-    timeline = AudioSegment.silent(duration=int((video_duration + 1) * 1000))
+def stitch_segments(segments, original_audio_path, audio_dir="data/audio", voice="en-US-AndrewNeural"):
+    timeline = AudioSegment.from_file(original_audio_path)
     cursor = 0.0
 
     for idx, seg in enumerate(segments):
@@ -43,6 +43,15 @@ def stitch_segments(segments, video_duration, audio_dir="data/audio", voice="en-
 
         placement = max(seg["start"], cursor)
         start_ms = int(placement * 1000)
+
+        seg_start_ms = int(seg["start"] * 1000)
+        seg_end_ms = int(seg["end"] * 1000)
+        clip_end_ms = start_ms + int(clip_dur * 1000)
+
+        mute_start_ms = min(seg_start_ms, start_ms)
+        mute_end_ms = max(seg_end_ms, clip_end_ms)
+        silence = AudioSegment.silent(duration=mute_end_ms-mute_start_ms)
+        timeline = timeline[:mute_start_ms] + silence + timeline[mute_end_ms:]
 
         timeline = timeline.overlay(clip, position=start_ms)
         cursor = placement + clip_dur
