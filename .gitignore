@@ -1,0 +1,19 @@
+# virtual env
+venv/
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+
+# generated/runtime data (videos, audio, jobs db)
+data/
+
+# env / secrets
+.env
+
+# editor/OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

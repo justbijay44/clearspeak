@@ -1,0 +1,50 @@
+# process segment and stitching/cursor logic
+
+import os
+from pydub import AudioSegment
+import librosa
+from src.tts import generate_tts_rate, trim_silence
+
+def process_segment(seg, idx, voice="en-US-AndrewNeural", audio_dir="data/audio"):
+    text = seg["text"]
+    original_dur = seg["end"] - seg["start"]
+
+    raw_path = f"{audio_dir}/tts_{idx}_raw.mp3"
+    generate_tts_rate(text, raw_path, 0, voice)
+    raw_trimmed = trim_silence(raw_path)
+    raw_trimmed_dur = librosa.get_duration(path=raw_trimmed)
+
+    gap = raw_trimmed_dur - original_dur
+
+    if gap > 0:
+        needed_rate = (raw_trimmed_dur / original_dur - 1) * 100
+        applied_rate = min(25, needed_rate)
+        adjusted_path = f"{audio_dir}/tts_{idx}_final.mp3"
+        generate_tts_rate(text, adjusted_path, applied_rate, voice)
+        final_path = trim_silence(adjusted_path)
+    else:
+        final_path = raw_trimmed
+
+    for path in {raw_path, raw_trimmed, adjusted_path if gap > 0 else None}:
+        if path and path != final_path and os.path.exists(path):
+            os.remove(path)
+    return final_path, gap
+
+def stitch_segments(segments, video_duration, audio_dir="data/audio", voice="en-US-AndrewNeural"):
+    timeline = AudioSegment.silent(duration=int((video_duration + 1) * 1000))
+    cursor = 0.0
+
+    for idx, seg in enumerate(segments):
+        path, gap = process_segment(seg, idx, voice=voice, audio_dir=audio_dir)
+        clip = AudioSegment.from_file(path)
+        clip_dur = len(clip) / 1000.0
+
+        os.remove(path)
+
+        placement = max(seg["start"], cursor)
+        start_ms = int(placement * 1000)
+
+        timeline = timeline.overlay(clip, position=start_ms)
+        cursor = placement + clip_dur
+
+    return timeline
