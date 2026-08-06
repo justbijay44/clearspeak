@@ -3,6 +3,7 @@ import shutil
 
 from fastapi import FastAPI, UploadFile, BackgroundTasks, HTTPException, Form
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 
 from src.jobs import init_db, create_job, update_job, get_job
@@ -18,6 +19,12 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+async def index():
+    return FileResponse("static/index.html")
 
 @app.post("/jobs")
 async def submit_video(file: UploadFile, background_tasks: BackgroundTasks, domain_hint: str = Form(None)):
@@ -60,3 +67,13 @@ async def download_job(job_id: str):
     if job["status"] != "complete":
         raise HTTPException(status_code=409, detail=f"job is {job['status']}, not complete")
     return FileResponse(job["output_path"], media_type="video/mp4", filename="output.mp4")
+
+@app.get("/jobs/{job_id}/original")
+async def original_job(job_id: str):
+    job = get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+    original_path = f"data/jobs/{job_id}/video/input.mp4"
+    if not os.path.exists(original_path):
+        raise HTTPException(status_code=404, detail="original video not found")
+    return FileResponse(original_path, media_type="video/mp4", filename="original.mp4")

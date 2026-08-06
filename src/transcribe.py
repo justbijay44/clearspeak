@@ -36,8 +36,8 @@ def transcribe(audio_path, blocks, model_size, work_dir="data", initial_prompt=N
         chunk.export(chunk_path, format="wav")
 
         result = model.transcribe(
-            chunk_path, 
-            verbose=None, 
+            chunk_path,
+            verbose=None,
             initial_prompt=prompt,
             condition_on_previous_text=False,
             logprob_threshold=-1.0,

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClearSpeak</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>ClearSpeak</h1>
+      <p class="subtitle">Upload a video and get back a dubbed version with a clear English voiceover.</p>
+    </header>
+
+    <div class="layout">
+      <main class="main-col">
+        <form id="upload-form" class="card">
+          <label id="dropzone" for="file" class="dropzone">
+            <input type="file" id="file" name="file" accept="video/*" required />
+            <div class="dropzone-content" id="dropzone-content">
+              <svg class="dropzone-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              <span id="dropzone-text">Drop a video here or <span class="link-text">browse</span></span>
+            </div>
+          </label>
+
+          <label for="domain_hint" class="field-label">
+            Domain hint <span class="optional">(optional — names or topics mentioned in the video)</span>
+          </label>
+          <input type="text" id="domain_hint" name="domain_hint" placeholder="e.g. Hugging Face, Julien, Thomas" />
+
+          <button type="submit" id="submit-btn">Upload &amp; Process</button>
+        </form>
+
+        <section id="status-section" class="card hidden">
+          <div class="status-row">
+            <span class="spinner" id="spinner"></span>
+            <div class="status-copy">
+              <span id="status-text">Waiting...</span>
+              <span id="status-sub" class="status-sub"></span>
+            </div>
+          </div>
+          <a id="download-link" class="button-link hidden" href="#" download>Download result</a>
+          <button id="reset-btn" class="text-btn hidden" type="button">Process another video</button>
+        </section>
+
+        <p id="error-line" class="error hidden"></p>
+      </main>
+
+      <aside class="compare-col card">
+        <div class="compare-item">
+          <span class="compare-label">Original</span>
+          <div class="video-frame" id="original-frame">
+            <span class="video-placeholder">Original video will appear here</span>
+            <video id="original-video" controls></video>
+          </div>
+        </div>
+        <div class="compare-item">
+          <span class="compare-label">Dubbed</span>
+          <div class="video-frame" id="dubbed-frame">
+            <span class="video-placeholder">Dubbed video will appear here</span>
+            <video id="dubbed-video" controls></video>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

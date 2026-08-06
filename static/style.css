@@ -1,0 +1,386 @@
+:root {
+  --bg: #0d0f14;
+  --surface: #161922;
+  --surface-hover: #1b1f2b;
+  --border: #262b38;
+  --text: #eceef2;
+  --muted: #8b93a3;
+  --accent: #6d8bff;
+  --accent-hover: #8199ff;
+  --error: #ff7a7a;
+  --success: #4ade80;
+  --radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 64px 20px;
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(420px, 3fr) minmax(320px, 2fr);
+  gap: 40px;
+  align-items: stretch;
+}
+
+.main-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.compare-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.compare-item {
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-col {
+    height: auto;
+  }
+
+  .compare-item {
+    flex: none;
+  }
+
+  .video-frame {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+}
+
+header {
+  margin-bottom: 36px;
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 6px 0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0;
+  font-size: 14px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px;
+}
+
+.card + .card {
+  margin-top: 16px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+.dropzone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  padding: 48px 16px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dropzone:hover,
+.dropzone.dragover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.dropzone-icon {
+  color: var(--accent);
+}
+
+.link-text {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.field-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 28px;
+  margin-bottom: 10px;
+}
+
+.optional {
+  font-weight: normal;
+}
+
+input[type="text"] {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 14px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+input[type="text"]:focus {
+  border-color: var(--accent);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+#submit-btn {
+  margin-top: 32px;
+  background: var(--accent);
+  color: white;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+
+#submit-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+#submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.spinner {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner.done {
+  animation: none;
+  border: 2px solid var(--success);
+  border-top-color: var(--success);
+}
+
+.spinner.errored {
+  animation: none;
+  border: 2px solid var(--error);
+  border-top-color: var(--error);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.status-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#status-text {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.status-sub {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.button-link {
+  display: inline-block;
+  margin-top: 18px;
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 11px 16px;
+  transition: background 0.15s ease;
+}
+
+.button-link:hover {
+  background: var(--accent-hover);
+}
+
+.text-btn {
+  display: block;
+  margin-top: 12px;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.text-btn:hover {
+  color: var(--text);
+}
+
+.error {
+  margin-top: 16px;
+  color: var(--error);
+  font-size: 14px;
+}
+
+.compare-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.compare-label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.video-frame {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-placeholder {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.video-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: black;
+  display: none;
+}
+
+.video-frame.has-src {
+  border-style: solid;
+}
+
+.video-frame.has-src .video-placeholder {
+  display: none;
+}
+
+.video-frame.has-src video {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-hover: #f0f2f6;
+    --border: #e2e5eb;
+    --text: #171a21;
+    --muted: #6b7280;
+  }
+}
+
+/* keyboard focus visibility */
+a:focus-visible,
+button:focus-visible,
+.dropzone:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+input[type="text"]:focus {
+  box-shadow: 0 0 0 3px rgba(109, 139, 255, 0.25);
+}
+
+/* respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
