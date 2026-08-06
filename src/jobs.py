@@ -1,38 +1,24 @@
-import sqlite3
 import uuid
-import contextlib
+import threading
 
-DB_PATH = "data/jobs.db"
+_jobs = {}
+_lock = threading.Lock()
 
 def init_db():
-    with contextlib.closing(sqlite3.connect(DB_PATH)) as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS jobs (
-                id              TEXT PRIMARY KEY,
-                status          TEXT NOT NULL,
-                output_path     TEXT,
-                error           TEXT
-            )
-        """)
-        conn.commit()
+    pass
 
 def create_job():
     job_id = str(uuid.uuid4())
-    with contextlib.closing(sqlite3.connect(DB_PATH)) as conn:
-        conn.execute("INSERT INTO jobs (id, status) VALUES (?, ?)", (job_id, "pending"))
-        conn.commit()
+    with _lock:
+        _jobs[job_id] = {"id": job_id, "status": "pending", "output_path": None, "error": None}
     return job_id
 
 def update_job(job_id, status, output_path=None, error=None):
-    with contextlib.closing(sqlite3.connect(DB_PATH)) as conn:
-        conn.execute(
-            "UPDATE jobs SET status = ?, output_path = ?, error = ? WHERE id = ?",
-            (status, output_path, error, job_id)
-        )
-        conn.commit()
+    with _lock:
+        if job_id in _jobs:
+            _jobs[job_id].update(status=status, output_path=output_path, error=error)
 
 def get_job(job_id):
-    with contextlib.closing(sqlite3.connect(DB_PATH)) as conn:
-        conn.row_factory = sqlite3.Row
-        row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
-        return dict(row) if row else None
+    with _lock:
+        job = _jobs.get(job_id)
+        return dict(job) if job else None

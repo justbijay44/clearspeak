@@ -1,0 +1,8 @@
+venv/
+data/
+logs/
+.git/
+notebooks/
+__pycache__/
+*.pyc
+.env

@@ -7,12 +7,16 @@ import subprocess
 from utils.logger import get_logger
 logger = get_logger(__name__)
 
-def run_pipeline(video_path, work_dir = "data", voice="en-US-AndrewNeural", model_size="medium", domain_hint=None):
+DEFAULT_MODEL_SIZE = os.environ.get("WHISPER_MODEL_SIZE", "medium")
+
+def run_pipeline(video_path, work_dir = "data", voice="en-US-AndrewNeural", model_size=None, domain_hint=None):
     audio_path = f"{work_dir}/audio/audio.wav"
     output_path = f"{work_dir}/video/output.mp4"
 
     os.makedirs(f"{work_dir}/audio", exist_ok=True)
     os.makedirs(f"{work_dir}/video", exist_ok=True)
+
+    model_size = model_size or DEFAULT_MODEL_SIZE
 
     logger.info(f"Extracting audio from {video_path}")
     extract_audio(video_path, audio_path)
