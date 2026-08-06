@@ -7,7 +7,7 @@ import subprocess
 from utils.logger import get_logger
 logger = get_logger(__name__)
 
-def run_pipeline(video_path, work_dir = "data", voice="en-US-AndrewNeural", model_size="small", domain_hint=None):
+def run_pipeline(video_path, work_dir = "data", voice="en-US-AndrewNeural", model_size="medium", domain_hint=None):
     audio_path = f"{work_dir}/audio/audio.wav"
     output_path = f"{work_dir}/video/output.mp4"
 

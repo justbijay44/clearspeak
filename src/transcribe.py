@@ -18,7 +18,7 @@ def extract_audio(video_path, audio_path):
     ], check=True)
     return audio_path
 
-def transcribe(audio_path, blocks, model_size="small", work_dir="data", initial_prompt=None):
+def transcribe(audio_path, blocks, model_size, work_dir="data", initial_prompt=None):
     logger.info(f"Loading whisper model: {model_size}")
     model = whisper.load_model(model_size)
     full_audio = AudioSegment.from_file(audio_path)
@@ -26,6 +26,7 @@ def transcribe(audio_path, blocks, model_size="small", work_dir="data", initial_
     chunk_path = f"{work_dir}/audio/temp_block.wav"
 
     all_segments = []
+    prompt = initial_prompt
     for idx, block in enumerate(blocks):
         logger.info(f"Transcribing block {idx+1} / {len(blocks)} ({block['start']:.1f}s - {block['end']:.1f}s)")
         start_ms = int(block["start"] * 1000)
@@ -34,7 +35,18 @@ def transcribe(audio_path, blocks, model_size="small", work_dir="data", initial_
 
         chunk.export(chunk_path, format="wav")
 
-        result = model.transcribe(chunk_path, verbose=None, initial_prompt=initial_prompt)
+        result = model.transcribe(
+            chunk_path, 
+            verbose=None, 
+            initial_prompt=prompt,
+            condition_on_previous_text=False,
+            logprob_threshold=-1.0,
+            no_speech_threshold=0.6
+        )
+
+        block_text = " ".join(seg["text"].strip() for seg in result["segments"])
+        if block_text:
+            prompt = block_text[-200:]
 
         for seg in result["segments"]:
             seg["start"] += block["start"]
