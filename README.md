@@ -60,15 +60,30 @@ src/
   align.py        # per-segment TTS generation, timing, mute/overlay onto original track
   pipeline.py      # ties it all together
   api.py          # FastAPI app, job queue, endpoints
-  jobs.py         # sqlite-backed job status tracking
+  jobs.py         # in-memory job status tracking
 utils/
   logger.py       # console + daily rotating file logger
 static/           # frontend (plain html/css/js, no build step)
 notebooks/
   jiwer.ipynb     # WER evaluation against manually transcribed reference clips
-data/             # generated at runtime, gitignored (per-job audio/video, jobs.db)
+data/             # generated at runtime, gitignored (per-job audio/video)
 logs/             # generated at runtime, gitignored
 ```
+
+## Docker / deployment
+
+There's a `Dockerfile` set up to run this (Python + ffmpeg + prefetched Whisper/Silero model weights baked into the image). Build and run it locally with:
+
+```
+docker build -t clearspeak .
+docker run -p 8000:8000 clearspeak
+```
+
+Model size for the container defaults to whatever `WHISPER_MODEL_SIZE` is set to (falls back to `medium` if unset — see `pipeline.py`).
+
+**Tried deploying this to Render's free tier and it doesn't work.** Even with the model dropped down to `base`, the container gets OOM-killed mid-request (shows up as job processing logs abruptly followed by a fresh server startup in the logs, then a 502 on the client). Torch's own baseline memory footprint, on top of whatever Whisper model is loaded, doesn't fit in the free tier's 512MB RAM regardless of model size. Running this for real would need either a paid tier with more RAM, or swapping Whisper's PyTorch backend for something lighter (e.g. `faster-whisper`, which uses CTranslate2 and uses meaningfully less memory) — not done here, just noting it as the actual fix if this gets revisited.
+
+Job tracking (`jobs.py`) is in-memory rather than a database, which was a deliberate choice for this deployment target — Render's free tier disk is wiped on every restart/redeploy anyway, so a persisted SQLite file wouldn't have outlived the process any longer than a plain dict does.
 
 ## Known limitations
 
