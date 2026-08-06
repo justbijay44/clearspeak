@@ -9,5 +9,5 @@ silero-vad==6.2.1
 soundfile==0.14.0
 uvicorn==0.52.1
 jiwer==4.0.0
-torch<2.9
-torchaudio<2.9
+torchcodec
+
